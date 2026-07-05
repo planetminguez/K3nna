@@ -1,0 +1,50 @@
+# Xcode
+DerivedData/
+build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.swiftpm/xcode
+.swiftpm/xcode
+
+# Swift
+.build/
+*.xcframework
+*.swiftpm
+
+# macOS
+.DS_Store
+*.swiftpm
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+dist/
+build/
+*.egg-info/
+.Python
+*.egg
+env/
+venv/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.vim
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PyInstaller artifacts
+*.spec
