@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K3NNA — Python Execution Compiler</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: linear-gradient(135deg, #141414 0%, #1e1e1e 100%);
+    color: #fff;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(230,0,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(230,0,0,0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ── Header ── */
+  header {
+    background: #1a1a1a;
+    border-bottom: 1px solid rgba(230,0,0,0.2);
+    box-shadow: 0 2px 12px rgba(230,0,0,0.2);
+    padding: 0 20px;
+  }
+  .header-inner {
+    display: flex; align-items: center; gap: 12px;
+    max-width: 960px; margin: 0 auto; height: 64px;
+  }
+  .logo-icon {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #e60000, #900000);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(230,0,0,0.5);
+  }
+  .logo-text h1 {
+    font-size: 22px; font-weight: 800; letter-spacing: 3px; color: #fff;
+  }
+  .logo-text p {
+    font-size: 9px; font-weight: 600; letter-spacing: 2px;
+    color: #e60000; text-transform: uppercase;
+  }
+  .header-spacer { flex: 1; }
+  .status-pill {
+    display: flex; align-items: center; gap: 8px;
+    background: #222; border-radius: 6px;
+    padding: 6px 12px; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .status-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34,197,94,0.8);
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  .status-dot.active {
+    background: #e60000;
+    box-shadow: 0 0 8px rgba(230,0,0,0.9);
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .status-label { color: #22c55e; transition: color 0.3s; }
+  .status-label.active { color: #e60000; }
+
+  /* ── Main ── */
+  main {
+    flex: 1;
+    max-width: 960px; margin: 0 auto; width: 100%;
+    padding: 24px 20px; display: flex; flex-direction: column; gap: 20px;
+  }
+
+  /* ── Drop Zone ── */
+  .drop-zone {
+    border: 2px solid #e60000;
+    border-radius: 16px;
+    background: #1e1e1e;
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .drop-zone::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(230,0,0,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .drop-zone.hovering {
+    border-color: #ff3333;
+    background: #252525;
+    box-shadow: 0 0 24px rgba(230,0,0,0.25), inset 0 0 24px rgba(230,0,0,0.05);
+  }
+  .drop-icon {
+    font-size: 52px; margin-bottom: 16px; display: block;
+    filter: drop-shadow(0 0 12px rgba(230,0,0,0.6));
+  }
+  .drop-title {
+    font-size: 15px; font-weight: 700; letter-spacing: 1.5px;
+    color: #fff; margin-bottom: 8px;
+  }
+  .drop-sub {
+    font-size: 11px; color: rgba(230,0,0,0.7); letter-spacing: 0.5px;
+  }
+  .drop-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .selected-files {
+    margin-top: 20px; padding-top: 16px;
+    border-top: 1px solid rgba(230,0,0,0.2);
+  }
+  .selected-file-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: #22c55e; padding: 4px 0;
+  }
+  .selected-file-row .remove-file {
+    margin-left: auto; cursor: pointer; color: #e60000;
+    background: none; border: none; font-size: 14px; line-height: 1;
+  }
+
+  /* ── Options Row ── */
+  .options-row {
+    display: flex; gap: 12px; align-items: center;
+    background: #222; border-radius: 10px; padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+  .toggle-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; color: #fff; cursor: pointer;
+    user-select: none;
+  }
+  .toggle-label input[type=checkbox] { display: none; }
+  .toggle-switch {
+    width: 36px; height: 20px; background: #333; border-radius: 10px;
+    position: relative; transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle-switch::after {
+    content: ''; position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%; background: #888;
+    transition: left 0.2s, background 0.2s;
+  }
+  .toggle-label input:checked + .toggle-switch { background: rgba(230,0,0,0.3); }
+  .toggle-label input:checked + .toggle-switch::after { left: 18px; background: #e60000; }
+  .options-divider { width: 1px; background: rgba(255,255,255,0.1); height: 24px; }
+  .options-spacer { flex: 1; }
+  .advanced-btn {
+    font-family: inherit; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.5px; color: #e60000; background: #1a1a1a;
+    border: 1px solid rgba(230,0,0,0.3); border-radius: 6px;
+    padding: 6px 14px; cursor: pointer; transition: background 0.2s;
+  }
+  .advanced-btn:hover { background: rgba(230,0,0,0.1); }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 12px; }
+  .btn {
+    font-family: inherit; font-size: 13px; font-weight: 700;
+    letter-spacing: 0.5px; border: none; border-radius: 10px;
+    padding: 12px 20px; cursor: pointer; flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-outline {
+    background: #222; color: #e60000;
+    border: 1px solid rgba(230,0,0,0.4);
+  }
+  .btn-outline:hover:not(:disabled) { background: rgba(230,0,0,0.1); }
+  .btn-primary {
+    background: linear-gradient(135deg, #e60000, #a00000);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(230,0,0,0.3);
+  }
+  .btn-primary:hover:not(:disabled) { box-shadow: 0 4px 20px rgba(230,0,0,0.5); }
+
+  /* ── Progress ── */
+  .progress-section {
+    background: #1a1a1a; border: 1px solid rgba(230,0,0,0.15);
+    border-radius: 12px; padding: 16px;
+    display: none; flex-direction: column; gap: 10px;
+  }
+  .progress-section.visible { display: flex; }
+  .progress-header { display: flex; align-items: center; justify-content: space-between; }
+  .progress-title { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #e60000; }
+  .progress-pct { font-size: 11px; color: #888; }
+  .progress-bar-bg {
+    height: 6px; background: #2a2a2a; border-radius: 3px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: linear-gradient(90deg, #e60000, #ff4444);
+    border-radius: 3px; width: 0%;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 8px rgba(230,0,0,0.6);
+  }
+  .progress-status { font-size: 11px; color: #888; min-height: 16px; }
+
+  /* ── Log ── */
+  .log-box {
+    background: #0d0d0d; border: 1px solid rgba(230,0,0,0.1);
+    border-radius: 8px; padding: 12px; max-height: 160px; overflow-y: auto;
+    font-size: 10px; line-height: 1.6; color: #666;
+    white-space: pre-wrap; word-break: break-all;
+  }
+  .log-box:empty::before { content: 'Awaiting output...'; color: #333; }
+
+  /* ── Result Banner ── */
+  .result-banner {
+    border-radius: 12px; padding: 16px 20px;
+    display: none; align-items: center; gap: 14px;
+  }
+  .result-banner.visible { display: flex; }
+  .result-banner.success {
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.3);
+  }
+  .result-banner.error {
+    background: rgba(230,0,0,0.08);
+    border: 1px solid rgba(230,0,0,0.3);
+  }
+  .result-icon { font-size: 24px; flex-shrink: 0; }
+  .result-text { flex: 1; }
+  .result-text strong { display: block; font-size: 13px; margin-bottom: 4px; }
+  .result-text span { font-size: 11px; color: #888; }
+  .result-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn-sm {
+    font-family: inherit; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.5px; border-radius: 8px; padding: 8px 14px;
+    cursor: pointer; border: none; transition: opacity 0.2s;
+  }
+  .btn-sm:hover { opacity: 0.8; }
+  .btn-dl { background: #e60000; color: #fff; }
+  .btn-script { background: #222; color: #e60000; border: 1px solid rgba(230,0,0,0.3); }
+
+  /* ── History ── */
+  .history-section {
+    background: #1a1a1a; border: 1px solid rgba(230,0,0,0.1);
+    border-radius: 12px; overflow: hidden;
+  }
+  .history-header {
+    padding: 12px 16px;
+    background: #161616;
+    border-bottom: 1px solid rgba(230,0,0,0.1);
+    font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #e60000;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .history-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+  .history-empty {
+    padding: 24px; text-align: center;
+    font-size: 11px; color: #333;
+  }
+  .history-item {
+    display: flex; align-items: center; gap: 10px;
+    background: #1e1e1e; border-radius: 8px; padding: 10px 12px;
+    border: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .history-item:hover { border-color: rgba(230,0,0,0.2); }
+  .history-status { font-size: 14px; flex-shrink: 0; }
+  .history-info { flex: 1; min-width: 0; }
+  .history-name { font-size: 11px; font-weight: 600; color: #fff; truncate: true;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-time { font-size: 9px; color: #444; margin-top: 2px; }
+  .history-dl {
+    font-family: inherit; font-size: 10px; font-weight: 700;
+    background: none; border: none; color: #e60000; cursor: pointer;
+    padding: 4px 8px; border-radius: 4px;
+    transition: background 0.2s;
+  }
+  .history-dl:hover { background: rgba(230,0,0,0.1); }
+
+  /* ── Advanced Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 100; display: none; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #131313; border: 1px solid rgba(230,0,0,0.2);
+    border-radius: 14px; width: 480px; max-width: 95vw;
+    max-height: 90vh; display: flex; flex-direction: column;
+    box-shadow: 0 0 40px rgba(230,0,0,0.15);
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
+    background: #1a1a1a;
+    border-bottom: 1px solid rgba(230,0,0,0.15);
+    border-radius: 14px 14px 0 0;
+  }
+  .modal-title { font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+  .modal-close {
+    background: none; border: none; font-size: 20px; color: #e60000;
+    cursor: pointer; line-height: 1;
+  }
+  .modal-body { padding: 20px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+  .opt-group {
+    background: #1e1e1e; border-radius: 10px; padding: 14px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .opt-group-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #e60000; margin-bottom: 4px;
+  }
+  .opt-row { display: flex; align-items: center; gap: 10px; }
+  .opt-row label { font-size: 11px; color: #ccc; cursor: pointer; }
+  textarea.custom-args {
+    width: 100%; background: #0d0d0d; border: 1px solid rgba(230,0,0,0.15);
+    border-radius: 8px; color: #ccc; font-family: inherit; font-size: 10px;
+    padding: 10px; resize: vertical; min-height: 90px;
+    outline: none;
+  }
+  textarea.custom-args:focus { border-color: rgba(230,0,0,0.4); }
+  .opt-hint { font-size: 9px; color: #444; }
+  .modal-footer {
+    padding: 14px 20px;
+    background: #1a1a1a;
+    border-top: 1px solid rgba(230,0,0,0.15);
+    border-radius: 0 0 14px 14px;
+  }
+  .btn-done {
+    width: 100%; font-family: inherit; font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px; background: linear-gradient(135deg, #e60000, #a00000);
+    color: #fff; border: none; border-radius: 8px; padding: 12px;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-done:hover { opacity: 0.85; }
+
+  /* ── Batch progress ── */
+  .batch-info { font-size: 11px; color: #666; }
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .btn-row { flex-direction: column; }
+    .options-divider { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="logo-icon">🔨</div>
+      <div class="logo-text">
+        <h1>K3NNA</h1>
+        <p>Python Execution Compiler</p>
+      </div>
+      <div class="header-spacer"></div>
+      <div class="status-pill">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-label" id="statusLabel">READY</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- Drop Zone -->
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".py" multiple>
+      <span class="drop-icon">📥</span>
+      <div class="drop-title">DRAG &amp; DROP PYTHON SCRIPTS</div>
+      <div class="drop-sub">Or click to browse multiple files</div>
+      <div class="selected-files" id="selectedFiles" style="display:none"></div>
+    </div>
+
+    <!-- Options Row -->
+    <div class="options-row">
+      <label class="toggle-label">
+        <input type="checkbox" id="optSaveDir" checked>
+        <span class="toggle-switch"></span>
+        📁 Save in own folder
+      </label>
+      <div class="options-divider"></div>
+      <label class="toggle-label">
+        <input type="checkbox" id="optScript" checked>
+        <span class="toggle-switch"></span>
+        📄 Auto script (.sh)
+      </label>
+      <div class="options-spacer"></div>
+      <button class="advanced-btn" id="advancedBtn">⚙ ADVANCED OPTIONS</button>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row">
+      <button class="btn btn-outline" id="browseBtn">📂 BROWSE</button>
+      <button class="btn btn-primary" id="convertBtn" disabled>
+        <span id="convertBtnText">🚀 CONVERT</span>
+      </button>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-section" id="progressSection">
+      <div class="progress-header">
+        <span class="progress-title">CONVERSION PROGRESS</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressBar"></div>
+      </div>
+      <div class="progress-status" id="progressStatus">Initializing...</div>
+      <div class="log-box" id="logBox"></div>
+    </div>
+
+    <!-- Result Banner -->
+    <div class="result-banner" id="resultBanner">
+      <div class="result-icon" id="resultIcon"></div>
+      <div class="result-text">
+        <strong id="resultTitle"></strong>
+        <span id="resultSub"></span>
+      </div>
+      <div class="result-actions" id="resultActions"></div>
+    </div>
+
+    <!-- History -->
+    <div class="history-section">
+      <div class="history-header">
+        <span>CONVERSION HISTORY</span>
+        <span id="historyCount" style="color:#444">0 conversions</span>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">No conversions yet. Drop a .py file to get started.</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Advanced Options Modal -->
+<div class="modal-overlay" id="advancedModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">ADVANCED PYINSTALLER OPTIONS</span>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="opt-group">
+        <div class="opt-group-title">COMPILATION OPTIONS</div>
+        <div class="opt-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="adv_onefile" checked>
+            <span class="toggle-switch"></span>
+            <label for="adv_onefile" style="cursor:pointer">--onefile (single executable)</label>
+          </label>
+        </div>
+        <div class="opt-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="adv_windowed" checked>
+            <span class="toggle-switch"></span>
+            <label for="adv_windowed" style="cursor:pointer">--windowed (no console)</label>
+          </label>
+        </div>
+        <div class="opt-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="adv_strip">
+            <span class="toggle-switch"></span>
+            <label for="adv_strip" style="cursor:pointer">--strip (remove debug symbols)</label>
+          </label>
+        </div>
+        <div class="opt-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="adv_optimize">
+            <span class="toggle-switch"></span>
+            <label for="adv_optimize" style="cursor:pointer">--optimize (Python optimization)</label>
+          </label>
+        </div>
+      </div>
+      <div class="opt-group">
+        <div class="opt-group-title">CUSTOM ARGUMENTS</div>
+        <textarea class="custom-args" id="adv_custom" placeholder="e.g. --hidden-import=module --additional-hooks-dir=/path"></textarea>
+        <div class="opt-hint">Space-separated PyInstaller flags. Applied after the options above.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-done" id="modalDone">DONE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── State ──
+  let selectedFiles = [];
+  let history = [];
+  let activeJobs = {};
+  let pollIntervals = {};
+
+  // ── DOM refs ──
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const selectedFilesEl = document.getElementById('selectedFiles');
+  const convertBtn = document.getElementById('convertBtn');
+  const convertBtnText = document.getElementById('convertBtnText');
+  const browseBtn = document.getElementById('browseBtn');
+  const progressSection = document.getElementById('progressSection');
+  const progressBar = document.getElementById('progressBar');
+  const progressPct = document.getElementById('progressPct');
+  const progressStatus = document.getElementById('progressStatus');
+  const logBox = document.getElementById('logBox');
+  const resultBanner = document.getElementById('resultBanner');
+  const resultIcon = document.getElementById('resultIcon');
+  const resultTitle = document.getElementById('resultTitle');
+  const resultSub = document.getElementById('resultSub');
+  const resultActions = document.getElementById('resultActions');
+  const historyList = document.getElementById('historyList');
+  const historyCount = document.getElementById('historyCount');
+  const statusDot = document.getElementById('statusDot');
+  const statusLabel = document.getElementById('statusLabel');
+  const advancedBtn = document.getElementById('advancedBtn');
+  const advancedModal = document.getElementById('advancedModal');
+  const modalClose = document.getElementById('modalClose');
+  const modalDone = document.getElementById('modalDone');
+
+  // ── Drag & Drop ──
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('hovering');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('hovering'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('hovering');
+    const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.py'));
+    addFiles(files);
+  });
+
+  fileInput.addEventListener('change', () => {
+    const files = Array.from(fileInput.files).filter(f => f.name.endsWith('.py'));
+    addFiles(files);
+    fileInput.value = '';
+  });
+
+  browseBtn.addEventListener('click', () => fileInput.click());
+
+  function addFiles(files) {
+    for (const f of files) {
+      if (!selectedFiles.find(sf => sf.name === f.name)) {
+        selectedFiles.push(f);
+      }
+    }
+    renderSelectedFiles();
+    updateConvertBtn();
+  }
+
+  function removeFile(name) {
+    selectedFiles = selectedFiles.filter(f => f.name !== name);
+    renderSelectedFiles();
+    updateConvertBtn();
+  }
+
+  function renderSelectedFiles() {
+    if (selectedFiles.length === 0) {
+      selectedFilesEl.style.display = 'none';
+      selectedFilesEl.innerHTML = '';
+      return;
+    }
+    selectedFilesEl.style.display = 'block';
+    selectedFilesEl.innerHTML = selectedFiles.map(f => `
+      <div class="selected-file-row">
+        ✅ ${f.name}
+        <button class="remove-file" onclick="removeFile('${f.name}')">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function updateConvertBtn() {
+    convertBtn.disabled = selectedFiles.length === 0;
+  }
+
+  // ── Status indicator ──
+  function setProcessing(active) {
+    statusDot.classList.toggle('active', active);
+    statusLabel.classList.toggle('active', active);
+    statusLabel.textContent = active ? 'PROCESSING' : 'READY';
+  }
+
+  // ── Advanced modal ──
+  advancedBtn.addEventListener('click', () => advancedModal.classList.add('open'));
+  modalClose.addEventListener('click', () => advancedModal.classList.remove('open'));
+  modalDone.addEventListener('click', () => advancedModal.classList.remove('open'));
+  advancedModal.addEventListener('click', e => {
+    if (e.target === advancedModal) advancedModal.classList.remove('open');
+  });
+
+  function getOptions() {
+    return {
+      oneFile: document.getElementById('adv_onefile').checked,
+      windowed: document.getElementById('adv_windowed').checked,
+      stripBinaries: document.getElementById('adv_strip').checked,
+      optimize: document.getElementById('adv_optimize').checked,
+      customOptions: document.getElementById('adv_custom').value.trim(),
+      createScript: document.getElementById('optScript').checked,
+    };
+  }
+
+  // ── Conversion ──
+  convertBtn.addEventListener('click', startConversion);
+
+  async function startConversion() {
+    if (selectedFiles.length === 0) return;
+
+    setProcessing(true);
+    convertBtn.disabled = true;
+    convertBtnText.innerHTML = '<span class="spinner"></span> CONVERTING...';
+    resultBanner.classList.remove('visible', 'success', 'error');
+    progressSection.classList.add('visible');
+    logBox.textContent = '';
+    setProgress(0, 'Queuing files...');
+
+    const options = getOptions();
+    const files = [...selectedFiles];
+    selectedFiles = [];
+    renderSelectedFiles();
+    updateConvertBtn();
+
+    let successCount = 0, failCount = 0;
+    const total = files.length;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setProgress(Math.round((i / total) * 80), `[${i+1}/${total}] Converting: ${file.name}`);
+
+      try {
+        const jobId = await submitFile(file, options);
+        const result = await pollJob(jobId, i, total, file.name);
+        if (result.status === 'done') {
+          successCount++;
+          addToHistory(file.name, true, jobId);
+        } else {
+          failCount++;
+          addToHistory(file.name, false, null, result.error);
+        }
+      } catch (err) {
+        failCount++;
+        addToHistory(file.name, false, null, err.message);
+      }
+    }
+
+    setProcessing(false);
+    setProgress(100, 'Finished');
+    convertBtnText.innerHTML = '🚀 CONVERT';
+
+    showResult(successCount, failCount, total);
+  }
+
+  async function submitFile(file, options) {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('options', JSON.stringify(options));
+    const res = await fetch('/api/convert', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+    return data.jobId;
+  }
+
+  function pollJob(jobId, fileIdx, total, filename) {
+    return new Promise((resolve) => {
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/status/${jobId}`);
+          const data = await res.json();
+
+          const baseProgress = Math.round((fileIdx / total) * 80);
+          const fileProgress = Math.round((data.progress / 100) * (80 / total));
+          setProgress(baseProgress + fileProgress, `[${fileIdx+1}/${total}] ${filename}: ${data.progress}%`);
+
+          if (data.log) logBox.textContent = data.log;
+          logBox.scrollTop = logBox.scrollHeight;
+
+          if (data.status === 'done' || data.status === 'failed') {
+            clearInterval(interval);
+            resolve(data);
+          }
+        } catch {
+          clearInterval(interval);
+          resolve({ status: 'failed', error: 'Connection error' });
+        }
+      }, 800);
+    });
+  }
+
+  function setProgress(pct, msg) {
+    progressBar.style.width = pct + '%';
+    progressPct.textContent = pct + '%';
+    if (msg) progressStatus.textContent = msg;
+  }
+
+  function showResult(successCount, failCount, total) {
+    resultBanner.classList.add('visible');
+    if (failCount === 0) {
+      resultBanner.classList.add('success');
+      resultIcon.textContent = '✅';
+      resultTitle.textContent = `All ${successCount} file(s) converted successfully!`;
+      resultSub.textContent = 'Download your executable(s) from the history below.';
+    } else if (successCount === 0) {
+      resultBanner.classList.add('error');
+      resultIcon.textContent = '❌';
+      resultTitle.textContent = `Failed to convert ${failCount} file(s)`;
+      resultSub.textContent = 'Check the log output above for details.';
+    } else {
+      resultBanner.classList.add('success');
+      resultIcon.textContent = '⚠️';
+      resultTitle.textContent = `Converted ${successCount}/${total} — ${failCount} failed`;
+      resultSub.textContent = 'Successful downloads available in history below.';
+    }
+    resultActions.innerHTML = '';
+  }
+
+  // ── History ──
+  function addToHistory(filename, success, jobId, error) {
+    const item = { filename, success, jobId, error, time: new Date() };
+    history.unshift(item);
+    renderHistory();
+  }
+
+  function renderHistory() {
+    historyCount.textContent = `${history.length} conversion${history.length !== 1 ? 's' : ''}`;
+    if (history.length === 0) {
+      historyList.innerHTML = '<div class="history-empty">No conversions yet. Drop a .py file to get started.</div>';
+      return;
+    }
+    historyList.innerHTML = history.map((item, idx) => `
+      <div class="history-item">
+        <span class="history-status">${item.success ? '✅' : '❌'}</span>
+        <div class="history-info">
+          <div class="history-name">${item.filename}</div>
+          <div class="history-time">${formatTime(item.time)}${item.error ? ' — ' + item.error.slice(0,60) : ''}</div>
+        </div>
+        ${item.success && item.jobId ? `
+          <button class="history-dl" onclick="downloadExe('${item.jobId}')">⬇ EXE</button>
+          <button class="history-dl" onclick="downloadScript('${item.jobId}')">📄 .sh</button>
+        ` : ''}
+      </div>
+    `).join('');
+  }
+
+  function formatTime(d) {
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  function downloadExe(jobId) {
+    window.location = `/api/download/${jobId}`;
+  }
+
+  function downloadScript(jobId) {
+    window.location = `/api/download-script/${jobId}`;
+  }
+
+  // Initial render
+  renderHistory();
+</script>
+</body>
+</html>
