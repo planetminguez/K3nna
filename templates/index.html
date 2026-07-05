@@ -368,6 +368,107 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ── macOS-style UIAlert ── */
+  .alert-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 200; display: none; align-items: center; justify-content: center;
+    animation: fadeIn 0.15s ease;
+  }
+  .alert-overlay.open { display: flex; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  .alert-box {
+    background: #1c1c1e;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    width: 380px; max-width: 92vw;
+    box-shadow:
+      0 32px 64px rgba(0,0,0,0.7),
+      0 0 0 0.5px rgba(255,255,255,0.06),
+      0 0 40px rgba(230,0,0,0.12);
+    overflow: hidden;
+    animation: alertPop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes alertPop {
+    from { transform: scale(0.88); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+
+  /* Traffic-light titlebar */
+  .alert-titlebar {
+    display: flex; align-items: center; gap: 7px;
+    padding: 10px 14px 0; background: #1c1c1e;
+  }
+  .alert-tl-dot {
+    width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+  }
+  .atl-close  { background: #ff5f57; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.3); }
+  .atl-min    { background: #febc2e; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.3); }
+  .atl-max    { background: #28c840; box-shadow: 0 0 0 0.5px rgba(0,0,0,0.3); }
+
+  /* Alert body */
+  .alert-body {
+    padding: 20px 24px 8px;
+    display: flex; gap: 18px; align-items: flex-start;
+  }
+  .alert-app-icon {
+    width: 64px; height: 64px; border-radius: 14px; flex-shrink: 0;
+    background: linear-gradient(135deg, #e60000, #7a0000);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 4px 16px rgba(230,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06);
+  }
+  .alert-text { flex: 1; min-width: 0; }
+  .alert-title {
+    font-size: 14px; font-weight: 700; color: #fff;
+    letter-spacing: 0.2px; margin-bottom: 7px;
+  }
+  .alert-message {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    line-height: 1.6; word-break: break-word;
+  }
+  .alert-message strong { color: rgba(255,255,255,0.75); }
+
+  /* File chip */
+  .alert-file-chip {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px; padding: 8px 12px; margin-top: 12px;
+  }
+  .alert-file-icon { font-size: 20px; flex-shrink: 0; }
+  .alert-file-info { min-width: 0; }
+  .alert-file-name { font-size: 11px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .alert-file-meta { font-size: 9px; color: #555; margin-top: 2px; letter-spacing: 0.3px; }
+
+  /* Divider */
+  .alert-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 16px 0 0; }
+
+  /* Buttons */
+  .alert-buttons {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 14px 20px 18px;
+  }
+  .alert-btn {
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    border: none; border-radius: 9px; padding: 11px 20px;
+    cursor: pointer; width: 100%; text-align: center;
+    letter-spacing: 0.2px; transition: opacity 0.15s, transform 0.1s;
+  }
+  .alert-btn:active { transform: scale(0.98); }
+  .alert-btn-primary {
+    background: linear-gradient(135deg, #e60000, #a80000);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(230,0,0,0.4);
+  }
+  .alert-btn-primary:hover { opacity: 0.9; }
+  .alert-btn-secondary {
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .alert-btn-secondary:hover { background: rgba(255,255,255,0.11); color: #fff; }
+
   @media (max-width: 860px) {
     .main-layout { flex-direction: column; }
     .left-panel { width: 100%; border-right: none; border-bottom: 1px solid rgba(230,0,0,0.1); }
@@ -516,6 +617,36 @@
 
   </div><!-- /main-layout -->
 </div><!-- /app -->
+
+<!-- ── macOS UIAlert ── -->
+<div class="alert-overlay" id="alertOverlay">
+  <div class="alert-box" id="alertBox">
+    <div class="alert-titlebar">
+      <div class="alert-tl-dot atl-close"></div>
+      <div class="alert-tl-dot atl-min"></div>
+      <div class="alert-tl-dot atl-max"></div>
+    </div>
+    <div class="alert-body">
+      <div class="alert-app-icon">🔨</div>
+      <div class="alert-text">
+        <div class="alert-title" id="alertTitle">Conversion Complete</div>
+        <div class="alert-message" id="alertMessage"></div>
+        <div class="alert-file-chip" id="alertFileChip">
+          <span class="alert-file-icon">⚙️</span>
+          <div class="alert-file-info">
+            <div class="alert-file-name" id="alertFileName">—</div>
+            <div class="alert-file-meta" id="alertFileMeta">Standalone Linux executable</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="alert-divider"></div>
+    <div class="alert-buttons">
+      <button class="alert-btn alert-btn-primary" id="alertOpenBtn">📂 Open in Finder</button>
+      <button class="alert-btn alert-btn-secondary" id="alertCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
 
 <!-- Advanced Modal -->
 <div class="modal-overlay" id="advancedModal">
@@ -891,7 +1022,73 @@
       resultTitle.textContent = `${successCount}/${total} converted — ${failCount} failed`;
       resultSub.textContent = 'See log for details. Successful ones downloadable below.';
     }
+
+    // Pop the UIAlert for any successful conversion
+    if (successCount > 0) {
+      const lastSuccess = history.find(h => h.success);
+      showFinderAlert(successCount, failCount, total, lastSuccess);
+    }
   }
+
+  // ── macOS UIAlert ────────────────────────────────────────────────────────
+  const alertOverlay = document.getElementById('alertOverlay');
+  const alertOpenBtn = document.getElementById('alertOpenBtn');
+  const alertCloseBtn= document.getElementById('alertCloseBtn');
+  let   alertJobId   = null;
+
+  function showFinderAlert(successCount, failCount, total, lastSuccess) {
+    alertJobId = lastSuccess ? lastSuccess.jobId : null;
+
+    // Title
+    const titleEl = document.getElementById('alertTitle');
+    titleEl.textContent = failCount === 0
+      ? 'Conversion Complete'
+      : `${successCount} of ${total} Converted`;
+
+    // Message
+    const msgEl = document.getElementById('alertMessage');
+    if (failCount === 0) {
+      msgEl.innerHTML = successCount === 1
+        ? `<strong>${lastSuccess.filename}</strong> was successfully compiled into a standalone executable.`
+        : `<strong>${successCount} scripts</strong> were successfully compiled into standalone executables.`;
+    } else {
+      msgEl.innerHTML = `<strong>${successCount}</strong> succeeded, <strong>${failCount}</strong> failed. `
+        + `Check the verbose log for details on the failures.`;
+    }
+
+    // File chip
+    const chipEl    = document.getElementById('alertFileChip');
+    const nameEl    = document.getElementById('alertFileName');
+    const metaEl    = document.getElementById('alertFileMeta');
+    if (lastSuccess) {
+      chipEl.style.display = '';
+      nameEl.textContent   = lastSuccess.filename.replace(/\.py$/, '') + ' (executable)';
+      metaEl.textContent   = `Linux · PyInstaller · Ready to distribute`;
+    } else {
+      chipEl.style.display = 'none';
+    }
+
+    // Primary button label
+    alertOpenBtn.textContent = alertJobId
+      ? '📂  Open in Finder  —  Download'
+      : '📂  Open in Finder';
+
+    alertOverlay.classList.add('open');
+  }
+
+  function closeAlert() { alertOverlay.classList.remove('open'); }
+
+  alertOpenBtn.addEventListener('click', () => {
+    if (alertJobId) downloadExe(alertJobId);
+    closeAlert();
+  });
+  alertCloseBtn.addEventListener('click', closeAlert);
+  alertOverlay.addEventListener('click', e => {
+    if (e.target === alertOverlay) closeAlert();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeAlert();
+  });
 
   // ── History ────────────────────────────────────────────────────────────────
   function addToHistory(filename, success, jobId, error) {
