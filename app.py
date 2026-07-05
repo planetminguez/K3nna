@@ -55,7 +55,7 @@ def run_conversion(job_id, file_path, options):
     args.extend([
         "--clean",
         "--distpath", str(output_dir / "dist"),
-        "--buildpath", str(build_dir),
+        "--workpath", str(build_dir),
         "--specpath", str(output_dir),
         str(file_path)
     ])
