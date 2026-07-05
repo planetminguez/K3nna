@@ -15,17 +15,14 @@
     overflow-x: hidden;
   }
 
-  /* Grid background */
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background-image:
       linear-gradient(rgba(230,0,0,0.03) 1px, transparent 1px),
       linear-gradient(90deg, rgba(230,0,0,0.03) 1px, transparent 1px);
     background-size: 30px 30px;
-    pointer-events: none;
-    z-index: 0;
+    pointer-events: none; z-index: 0;
   }
 
   .app { position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 100vh; }
@@ -35,11 +32,11 @@
     background: #1a1a1a;
     border-bottom: 1px solid rgba(230,0,0,0.2);
     box-shadow: 0 2px 12px rgba(230,0,0,0.2);
-    padding: 0 20px;
+    padding: 0 20px; flex-shrink: 0;
   }
   .header-inner {
     display: flex; align-items: center; gap: 12px;
-    max-width: 960px; margin: 0 auto; height: 64px;
+    max-width: 1200px; margin: 0 auto; height: 64px;
   }
   .logo-icon {
     width: 44px; height: 44px; border-radius: 50%;
@@ -48,242 +45,280 @@
     font-size: 20px; flex-shrink: 0;
     box-shadow: 0 0 12px rgba(230,0,0,0.5);
   }
-  .logo-text h1 {
-    font-size: 22px; font-weight: 800; letter-spacing: 3px; color: #fff;
-  }
-  .logo-text p {
-    font-size: 9px; font-weight: 600; letter-spacing: 2px;
-    color: #e60000; text-transform: uppercase;
-  }
+  .logo-text h1 { font-size: 22px; font-weight: 800; letter-spacing: 3px; color: #fff; }
+  .logo-text p  { font-size: 9px; font-weight: 600; letter-spacing: 2px; color: #e60000; }
   .header-spacer { flex: 1; }
   .status-pill {
     display: flex; align-items: center; gap: 8px;
     background: #222; border-radius: 6px;
-    padding: 6px 12px; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.5px;
+    padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
   }
   .status-dot {
-    width: 9px; height: 9px; border-radius: 50%;
-    background: #22c55e;
-    box-shadow: 0 0 6px rgba(34,197,94,0.8);
-    transition: background 0.3s, box-shadow 0.3s;
+    width: 9px; height: 9px; border-radius: 50%; background: #22c55e;
+    box-shadow: 0 0 6px rgba(34,197,94,0.8); transition: all 0.3s;
   }
-  .status-dot.active {
-    background: #e60000;
-    box-shadow: 0 0 8px rgba(230,0,0,0.9);
-    animation: pulse 1s infinite;
-  }
+  .status-dot.active { background: #e60000; box-shadow: 0 0 8px rgba(230,0,0,0.9); animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
   .status-label { color: #22c55e; transition: color 0.3s; }
   .status-label.active { color: #e60000; }
 
-  /* ── Main ── */
-  main {
-    flex: 1;
-    max-width: 960px; margin: 0 auto; width: 100%;
-    padding: 24px 20px; display: flex; flex-direction: column; gap: 20px;
+  /* ── Two-column layout ── */
+  .main-layout {
+    flex: 1; display: flex; gap: 0;
+    max-width: 1200px; margin: 0 auto; width: 100%;
+  }
+
+  /* ── Left panel ── */
+  .left-panel {
+    width: 420px; flex-shrink: 0;
+    padding: 20px 16px 20px 20px;
+    display: flex; flex-direction: column; gap: 16px;
+    border-right: 1px solid rgba(230,0,0,0.1);
   }
 
   /* ── Drop Zone ── */
   .drop-zone {
-    border: 2px solid #e60000;
-    border-radius: 16px;
-    background: #1e1e1e;
-    padding: 48px 24px;
-    text-align: center;
-    cursor: pointer;
+    border: 2px solid #e60000; border-radius: 14px;
+    background: #1e1e1e; padding: 36px 20px;
+    text-align: center; cursor: pointer;
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
   .drop-zone::before {
-    content: '';
-    position: absolute; inset: 0;
+    content: ''; position: absolute; inset: 0;
     background: radial-gradient(ellipse at 50% 0%, rgba(230,0,0,0.08) 0%, transparent 70%);
     pointer-events: none;
   }
   .drop-zone.hovering {
-    border-color: #ff3333;
-    background: #252525;
+    border-color: #ff3333; background: #252525;
     box-shadow: 0 0 24px rgba(230,0,0,0.25), inset 0 0 24px rgba(230,0,0,0.05);
   }
-  .drop-icon {
-    font-size: 52px; margin-bottom: 16px; display: block;
-    filter: drop-shadow(0 0 12px rgba(230,0,0,0.6));
-  }
-  .drop-title {
-    font-size: 15px; font-weight: 700; letter-spacing: 1.5px;
-    color: #fff; margin-bottom: 8px;
-  }
-  .drop-sub {
-    font-size: 11px; color: rgba(230,0,0,0.7); letter-spacing: 0.5px;
-  }
-  .drop-zone input[type=file] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer;
-  }
-  .selected-files {
-    margin-top: 20px; padding-top: 16px;
-    border-top: 1px solid rgba(230,0,0,0.2);
-  }
+  .drop-icon { font-size: 42px; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 10px rgba(230,0,0,0.6)); }
+  .drop-title { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; color: #fff; margin-bottom: 6px; }
+  .drop-sub   { font-size: 10px; color: rgba(230,0,0,0.7); letter-spacing: 0.5px; }
+  .drop-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .selected-files { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(230,0,0,0.2); }
   .selected-file-row {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px; color: #22c55e; padding: 4px 0;
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: #22c55e; padding: 3px 0;
   }
   .selected-file-row .remove-file {
     margin-left: auto; cursor: pointer; color: #e60000;
-    background: none; border: none; font-size: 14px; line-height: 1;
+    background: none; border: none; font-size: 13px; line-height: 1;
   }
 
-  /* ── Options Row ── */
+  /* ── Options ── */
   .options-row {
-    display: flex; gap: 12px; align-items: center;
-    background: #222; border-radius: 10px; padding: 12px 16px;
-    flex-wrap: wrap;
+    display: flex; gap: 10px; align-items: center;
+    background: #222; border-radius: 10px; padding: 10px 14px; flex-wrap: wrap;
   }
   .toggle-label {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px; font-weight: 600; color: #fff; cursor: pointer;
-    user-select: none;
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; font-weight: 600; color: #fff; cursor: pointer; user-select: none;
   }
   .toggle-label input[type=checkbox] { display: none; }
   .toggle-switch {
-    width: 36px; height: 20px; background: #333; border-radius: 10px;
+    width: 32px; height: 18px; background: #333; border-radius: 9px;
     position: relative; transition: background 0.2s; flex-shrink: 0;
   }
   .toggle-switch::after {
     content: ''; position: absolute; top: 2px; left: 2px;
-    width: 16px; height: 16px; border-radius: 50%; background: #888;
-    transition: left 0.2s, background 0.2s;
+    width: 14px; height: 14px; border-radius: 50%; background: #888; transition: left 0.2s, background 0.2s;
   }
   .toggle-label input:checked + .toggle-switch { background: rgba(230,0,0,0.3); }
-  .toggle-label input:checked + .toggle-switch::after { left: 18px; background: #e60000; }
-  .options-divider { width: 1px; background: rgba(255,255,255,0.1); height: 24px; }
+  .toggle-label input:checked + .toggle-switch::after { left: 16px; background: #e60000; }
+  .options-divider { width: 1px; background: rgba(255,255,255,0.1); height: 20px; }
   .options-spacer { flex: 1; }
   .advanced-btn {
-    font-family: inherit; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.5px; color: #e60000; background: #1a1a1a;
-    border: 1px solid rgba(230,0,0,0.3); border-radius: 6px;
-    padding: 6px 14px; cursor: pointer; transition: background 0.2s;
+    font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    color: #e60000; background: #1a1a1a; border: 1px solid rgba(230,0,0,0.3);
+    border-radius: 6px; padding: 5px 12px; cursor: pointer; transition: background 0.2s;
   }
   .advanced-btn:hover { background: rgba(230,0,0,0.1); }
 
   /* ── Buttons ── */
-  .btn-row { display: flex; gap: 12px; }
+  .btn-row { display: flex; gap: 10px; }
   .btn {
-    font-family: inherit; font-size: 13px; font-weight: 700;
-    letter-spacing: 0.5px; border: none; border-radius: 10px;
-    padding: 12px 20px; cursor: pointer; flex: 1;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: inherit; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+    border: none; border-radius: 10px; padding: 11px 16px; cursor: pointer; flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
     transition: opacity 0.2s, transform 0.1s;
   }
   .btn:active { transform: scale(0.98); }
   .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-  .btn-outline {
-    background: #222; color: #e60000;
-    border: 1px solid rgba(230,0,0,0.4);
-  }
+  .btn-outline { background: #222; color: #e60000; border: 1px solid rgba(230,0,0,0.4); }
   .btn-outline:hover:not(:disabled) { background: rgba(230,0,0,0.1); }
-  .btn-primary {
-    background: linear-gradient(135deg, #e60000, #a00000);
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(230,0,0,0.3);
-  }
+  .btn-primary { background: linear-gradient(135deg, #e60000, #a00000); color: #fff; box-shadow: 0 4px 12px rgba(230,0,0,0.3); }
   .btn-primary:hover:not(:disabled) { box-shadow: 0 4px 20px rgba(230,0,0,0.5); }
 
   /* ── Progress ── */
-  .progress-section {
-    background: #1a1a1a; border: 1px solid rgba(230,0,0,0.15);
-    border-radius: 12px; padding: 16px;
-    display: none; flex-direction: column; gap: 10px;
-  }
-  .progress-section.visible { display: flex; }
+  .progress-section { display: flex; flex-direction: column; gap: 8px; }
   .progress-header { display: flex; align-items: center; justify-content: space-between; }
-  .progress-title { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #e60000; }
-  .progress-pct { font-size: 11px; color: #888; }
-  .progress-bar-bg {
-    height: 6px; background: #2a2a2a; border-radius: 3px; overflow: hidden;
-  }
+  .progress-title  { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #e60000; }
+  .progress-pct    { font-size: 10px; color: #888; }
+  .progress-bar-bg { height: 5px; background: #2a2a2a; border-radius: 3px; overflow: hidden; }
   .progress-bar-fill {
     height: 100%; background: linear-gradient(90deg, #e60000, #ff4444);
-    border-radius: 3px; width: 0%;
-    transition: width 0.4s ease;
+    border-radius: 3px; width: 0%; transition: width 0.4s ease;
     box-shadow: 0 0 8px rgba(230,0,0,0.6);
   }
-  .progress-status { font-size: 11px; color: #888; min-height: 16px; }
-
-  /* ── Log ── */
-  .log-box {
-    background: #0d0d0d; border: 1px solid rgba(230,0,0,0.1);
-    border-radius: 8px; padding: 12px; max-height: 160px; overflow-y: auto;
-    font-size: 10px; line-height: 1.6; color: #666;
-    white-space: pre-wrap; word-break: break-all;
-  }
-  .log-box:empty::before { content: 'Awaiting output...'; color: #333; }
+  .progress-status { font-size: 10px; color: #666; min-height: 14px; }
 
   /* ── Result Banner ── */
-  .result-banner {
-    border-radius: 12px; padding: 16px 20px;
-    display: none; align-items: center; gap: 14px;
-  }
+  .result-banner { border-radius: 10px; padding: 12px 16px; display: none; align-items: center; gap: 12px; }
   .result-banner.visible { display: flex; }
-  .result-banner.success {
-    background: rgba(34,197,94,0.08);
-    border: 1px solid rgba(34,197,94,0.3);
-  }
-  .result-banner.error {
-    background: rgba(230,0,0,0.08);
-    border: 1px solid rgba(230,0,0,0.3);
-  }
-  .result-icon { font-size: 24px; flex-shrink: 0; }
+  .result-banner.success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); }
+  .result-banner.error   { background: rgba(230,0,0,0.08);  border: 1px solid rgba(230,0,0,0.3); }
+  .result-icon { font-size: 20px; flex-shrink: 0; }
   .result-text { flex: 1; }
-  .result-text strong { display: block; font-size: 13px; margin-bottom: 4px; }
-  .result-text span { font-size: 11px; color: #888; }
-  .result-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .result-text strong { display: block; font-size: 12px; margin-bottom: 3px; }
+  .result-text span   { font-size: 10px; color: #888; }
+  .result-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
   .btn-sm {
-    font-family: inherit; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.5px; border-radius: 8px; padding: 8px 14px;
-    cursor: pointer; border: none; transition: opacity 0.2s;
+    font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    border-radius: 7px; padding: 6px 12px; cursor: pointer; border: none; transition: opacity 0.2s;
   }
   .btn-sm:hover { opacity: 0.8; }
-  .btn-dl { background: #e60000; color: #fff; }
+  .btn-dl     { background: #e60000; color: #fff; }
   .btn-script { background: #222; color: #e60000; border: 1px solid rgba(230,0,0,0.3); }
 
   /* ── History ── */
-  .history-section {
-    background: #1a1a1a; border: 1px solid rgba(230,0,0,0.1);
-    border-radius: 12px; overflow: hidden;
-  }
+  .history-section { background: #1a1a1a; border: 1px solid rgba(230,0,0,0.1); border-radius: 10px; overflow: hidden; }
   .history-header {
-    padding: 12px 16px;
-    background: #161616;
+    padding: 10px 14px; background: #161616;
     border-bottom: 1px solid rgba(230,0,0,0.1);
-    font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #e60000;
+    font-size: 9px; font-weight: 700; letter-spacing: 2px; color: #e60000;
     display: flex; align-items: center; justify-content: space-between;
   }
-  .history-list { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
-  .history-empty {
-    padding: 24px; text-align: center;
-    font-size: 11px; color: #333;
-  }
+  .history-list    { padding: 6px; display: flex; flex-direction: column; gap: 5px; }
+  .history-empty   { padding: 18px; text-align: center; font-size: 10px; color: #333; }
   .history-item {
-    display: flex; align-items: center; gap: 10px;
-    background: #1e1e1e; border-radius: 8px; padding: 10px 12px;
-    border: 1px solid transparent;
-    transition: border-color 0.2s;
+    display: flex; align-items: center; gap: 8px;
+    background: #1e1e1e; border-radius: 7px; padding: 8px 10px;
+    border: 1px solid transparent; transition: border-color 0.2s; cursor: pointer;
   }
   .history-item:hover { border-color: rgba(230,0,0,0.2); }
-  .history-status { font-size: 14px; flex-shrink: 0; }
-  .history-info { flex: 1; min-width: 0; }
-  .history-name { font-size: 11px; font-weight: 600; color: #fff; truncate: true;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .history-time { font-size: 9px; color: #444; margin-top: 2px; }
+  .history-item.active-job { border-color: rgba(230,0,0,0.5); background: rgba(230,0,0,0.04); }
+  .history-status { font-size: 13px; flex-shrink: 0; }
+  .history-info   { flex: 1; min-width: 0; }
+  .history-name   { font-size: 10px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .history-time   { font-size: 8px; color: #444; margin-top: 2px; }
   .history-dl {
-    font-family: inherit; font-size: 10px; font-weight: 700;
+    font-family: inherit; font-size: 9px; font-weight: 700;
     background: none; border: none; color: #e60000; cursor: pointer;
-    padding: 4px 8px; border-radius: 4px;
-    transition: background 0.2s;
+    padding: 3px 7px; border-radius: 4px; transition: background 0.2s;
   }
   .history-dl:hover { background: rgba(230,0,0,0.1); }
+
+  /* ── Right panel: Terminal ── */
+  .right-panel {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 20px 20px 20px 16px;
+    min-width: 0;
+  }
+
+  .terminal-wrapper {
+    flex: 1; display: flex; flex-direction: column;
+    background: #0a0a0a; border: 1px solid rgba(230,0,0,0.2);
+    border-radius: 12px; overflow: hidden;
+    min-height: 0;
+  }
+
+  /* Terminal titlebar */
+  .terminal-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: #111; padding: 8px 14px;
+    border-bottom: 1px solid rgba(230,0,0,0.15); flex-shrink: 0;
+  }
+  .terminal-dots { display: flex; gap: 5px; }
+  .terminal-dot {
+    width: 11px; height: 11px; border-radius: 50%;
+  }
+  .dot-red    { background: #e60000; box-shadow: 0 0 4px rgba(230,0,0,0.7); }
+  .dot-yellow { background: #f59e0b; }
+  .dot-green  { background: #22c55e; }
+  .terminal-title {
+    flex: 1; text-align: center; font-size: 10px; font-weight: 700;
+    letter-spacing: 1.5px; color: #555;
+  }
+  .terminal-controls { display: flex; gap: 6px; align-items: center; }
+  .term-btn {
+    font-family: inherit; font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+    background: #1a1a1a; border: 1px solid #2a2a2a; color: #666;
+    border-radius: 4px; padding: 3px 9px; cursor: pointer; transition: all 0.2s;
+  }
+  .term-btn:hover { border-color: rgba(230,0,0,0.3); color: #e60000; }
+  .term-btn.active { border-color: #e60000; color: #e60000; background: rgba(230,0,0,0.08); }
+  .term-line-count { font-size: 9px; color: #333; letter-spacing: 0.5px; }
+
+  /* Terminal body */
+  .terminal-body {
+    flex: 1; overflow-y: auto; overflow-x: hidden;
+    padding: 10px 0; font-size: 11px; line-height: 1.55;
+    min-height: 0;
+  }
+
+  /* Scrollbar */
+  .terminal-body::-webkit-scrollbar { width: 6px; }
+  .terminal-body::-webkit-scrollbar-track { background: #0a0a0a; }
+  .terminal-body::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 3px; }
+  .terminal-body::-webkit-scrollbar-thumb:hover { background: #3a0000; }
+
+  /* Log lines */
+  .log-line {
+    display: flex; align-items: baseline; gap: 0;
+    padding: 0 14px;
+    transition: background 0.1s;
+  }
+  .log-line:hover { background: rgba(255,255,255,0.02); }
+
+  .ln { /* line number */
+    color: #2a2a2a; font-size: 9px; width: 36px;
+    flex-shrink: 0; user-select: none; text-align: right;
+    padding-right: 10px;
+  }
+  .ts { /* timestamp */
+    color: #2e2e2e; font-size: 9px; flex-shrink: 0;
+    padding-right: 6px; white-space: nowrap;
+  }
+  .badge {
+    font-size: 9px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 0 5px; border-radius: 3px; flex-shrink: 0;
+    margin-right: 7px; white-space: nowrap; align-self: flex-start; margin-top: 1px;
+  }
+  .msg { word-break: break-all; flex: 1; }
+
+  /* Badge colours */
+  .badge-STEP { background: rgba(230,0,0,0.15); color: #e60000; }
+  .badge-INFO { background: rgba(100,180,255,0.1); color: #60b0ff; }
+  .badge-WARN { background: rgba(245,158,11,0.12); color: #f59e0b; }
+  .badge-OK   { background: rgba(34,197,94,0.12);  color: #22c55e; }
+  .badge-ERR  { background: rgba(230,0,0,0.15);    color: #ff4444; }
+  .badge-PYIS { background: rgba(150,100,255,0.12);color: #a57fff; }
+  .badge-SYS  { background: rgba(255,255,255,0.05);color: #444; }
+
+  /* Text colours */
+  .msg-STEP { color: #e60000; font-weight: 700; }
+  .msg-INFO { color: #8cc8ff; }
+  .msg-WARN { color: #f59e0b; }
+  .msg-OK   { color: #22c55e; }
+  .msg-ERR  { color: #ff4444; font-weight: 700; }
+  .msg-PYIS { color: #b8a0ff; }
+  .msg-SYS  { color: #333; font-style: italic; }
+
+  /* Blinking cursor */
+  .cursor {
+    display: inline-block; width: 7px; height: 13px;
+    background: #e60000; margin-left: 4px; vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* Terminal idle state */
+  .terminal-idle {
+    padding: 24px 16px; color: #2a2a2a; font-size: 11px; line-height: 1.8;
+  }
+  .idle-banner { color: #3a0000; font-weight: 700; margin-bottom: 12px; }
 
   /* ── Advanced Modal ── */
   .modal-overlay {
@@ -293,67 +328,51 @@
   .modal-overlay.open { display: flex; }
   .modal {
     background: #131313; border: 1px solid rgba(230,0,0,0.2);
-    border-radius: 14px; width: 480px; max-width: 95vw;
-    max-height: 90vh; display: flex; flex-direction: column;
+    border-radius: 14px; width: 460px; max-width: 95vw; max-height: 90vh;
+    display: flex; flex-direction: column;
     box-shadow: 0 0 40px rgba(230,0,0,0.15);
   }
   .modal-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 20px;
-    background: #1a1a1a;
+    padding: 14px 18px; background: #1a1a1a;
     border-bottom: 1px solid rgba(230,0,0,0.15);
     border-radius: 14px 14px 0 0;
   }
-  .modal-title { font-size: 13px; font-weight: 700; letter-spacing: 1px; }
-  .modal-close {
-    background: none; border: none; font-size: 20px; color: #e60000;
-    cursor: pointer; line-height: 1;
-  }
-  .modal-body { padding: 20px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
-  .opt-group {
-    background: #1e1e1e; border-radius: 10px; padding: 14px;
-    display: flex; flex-direction: column; gap: 12px;
-  }
-  .opt-group-title {
-    font-size: 10px; font-weight: 700; letter-spacing: 2px; color: #e60000; margin-bottom: 4px;
-  }
-  .opt-row { display: flex; align-items: center; gap: 10px; }
-  .opt-row label { font-size: 11px; color: #ccc; cursor: pointer; }
+  .modal-title  { font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+  .modal-close  { background: none; border: none; font-size: 18px; color: #e60000; cursor: pointer; }
+  .modal-body   { padding: 18px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+  .opt-group    { background: #1e1e1e; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .opt-group-title { font-size: 9px; font-weight: 700; letter-spacing: 2px; color: #e60000; margin-bottom: 2px; }
   textarea.custom-args {
     width: 100%; background: #0d0d0d; border: 1px solid rgba(230,0,0,0.15);
     border-radius: 8px; color: #ccc; font-family: inherit; font-size: 10px;
-    padding: 10px; resize: vertical; min-height: 90px;
-    outline: none;
+    padding: 10px; resize: vertical; min-height: 80px; outline: none;
   }
   textarea.custom-args:focus { border-color: rgba(230,0,0,0.4); }
   .opt-hint { font-size: 9px; color: #444; }
   .modal-footer {
-    padding: 14px 20px;
-    background: #1a1a1a;
-    border-top: 1px solid rgba(230,0,0,0.15);
-    border-radius: 0 0 14px 14px;
+    padding: 12px 18px; background: #1a1a1a;
+    border-top: 1px solid rgba(230,0,0,0.15); border-radius: 0 0 14px 14px;
   }
   .btn-done {
-    width: 100%; font-family: inherit; font-size: 12px; font-weight: 700;
-    letter-spacing: 0.5px; background: linear-gradient(135deg, #e60000, #a00000);
-    color: #fff; border: none; border-radius: 8px; padding: 12px;
-    cursor: pointer; transition: opacity 0.2s;
+    width: 100%; font-family: inherit; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+    background: linear-gradient(135deg, #e60000, #a00000); color: #fff;
+    border: none; border-radius: 8px; padding: 11px; cursor: pointer; transition: opacity 0.2s;
   }
   .btn-done:hover { opacity: 0.85; }
 
-  /* ── Batch progress ── */
-  .batch-info { font-size: 11px; color: #666; }
   .spinner {
-    display: inline-block; width: 14px; height: 14px;
-    border: 2px solid rgba(255,255,255,0.2);
-    border-top-color: #fff; border-radius: 50%;
-    animation: spin 0.7s linear infinite;
+    display: inline-block; width: 13px; height: 13px;
+    border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff;
+    border-radius: 50%; animation: spin 0.7s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  @media (max-width: 600px) {
-    .btn-row { flex-direction: column; }
-    .options-divider { display: none; }
+  @media (max-width: 860px) {
+    .main-layout { flex-direction: column; }
+    .left-panel { width: 100%; border-right: none; border-bottom: 1px solid rgba(230,0,0,0.1); }
+    .right-panel { min-height: 500px; }
+    .terminal-wrapper { min-height: 480px; }
   }
 </style>
 </head>
@@ -376,80 +395,129 @@
     </div>
   </header>
 
-  <main>
+  <div class="main-layout">
 
-    <!-- Drop Zone -->
-    <div class="drop-zone" id="dropZone">
-      <input type="file" id="fileInput" accept=".py" multiple>
-      <span class="drop-icon">📥</span>
-      <div class="drop-title">DRAG &amp; DROP PYTHON SCRIPTS</div>
-      <div class="drop-sub">Or click to browse multiple files</div>
-      <div class="selected-files" id="selectedFiles" style="display:none"></div>
-    </div>
+    <!-- ── LEFT PANEL ── -->
+    <div class="left-panel">
 
-    <!-- Options Row -->
-    <div class="options-row">
-      <label class="toggle-label">
-        <input type="checkbox" id="optSaveDir" checked>
-        <span class="toggle-switch"></span>
-        📁 Save in own folder
-      </label>
-      <div class="options-divider"></div>
-      <label class="toggle-label">
-        <input type="checkbox" id="optScript" checked>
-        <span class="toggle-switch"></span>
-        📄 Auto script (.sh)
-      </label>
-      <div class="options-spacer"></div>
-      <button class="advanced-btn" id="advancedBtn">⚙ ADVANCED OPTIONS</button>
-    </div>
-
-    <!-- Buttons -->
-    <div class="btn-row">
-      <button class="btn btn-outline" id="browseBtn">📂 BROWSE</button>
-      <button class="btn btn-primary" id="convertBtn" disabled>
-        <span id="convertBtnText">🚀 CONVERT</span>
-      </button>
-    </div>
-
-    <!-- Progress -->
-    <div class="progress-section" id="progressSection">
-      <div class="progress-header">
-        <span class="progress-title">CONVERSION PROGRESS</span>
-        <span class="progress-pct" id="progressPct">0%</span>
+      <!-- Drop Zone -->
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept=".py" multiple>
+        <span class="drop-icon">📥</span>
+        <div class="drop-title">DRAG &amp; DROP PYTHON SCRIPTS</div>
+        <div class="drop-sub">Or click to browse multiple .py files</div>
+        <div class="selected-files" id="selectedFiles" style="display:none"></div>
       </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progressBar"></div>
-      </div>
-      <div class="progress-status" id="progressStatus">Initializing...</div>
-      <div class="log-box" id="logBox"></div>
-    </div>
 
-    <!-- Result Banner -->
-    <div class="result-banner" id="resultBanner">
-      <div class="result-icon" id="resultIcon"></div>
-      <div class="result-text">
-        <strong id="resultTitle"></strong>
-        <span id="resultSub"></span>
+      <!-- Options -->
+      <div class="options-row">
+        <label class="toggle-label">
+          <input type="checkbox" id="optSaveDir" checked>
+          <span class="toggle-switch"></span>
+          📁 Own folder
+        </label>
+        <div class="options-divider"></div>
+        <label class="toggle-label">
+          <input type="checkbox" id="optScript" checked>
+          <span class="toggle-switch"></span>
+          📄 .sh script
+        </label>
+        <div class="options-spacer"></div>
+        <button class="advanced-btn" id="advancedBtn">⚙ ADVANCED</button>
       </div>
-      <div class="result-actions" id="resultActions"></div>
-    </div>
 
-    <!-- History -->
-    <div class="history-section">
-      <div class="history-header">
-        <span>CONVERSION HISTORY</span>
-        <span id="historyCount" style="color:#444">0 conversions</span>
+      <!-- Buttons -->
+      <div class="btn-row">
+        <button class="btn btn-outline" id="browseBtn">📂 BROWSE</button>
+        <button class="btn btn-primary" id="convertBtn" disabled>
+          <span id="convertBtnText">🚀 CONVERT</span>
+        </button>
       </div>
-      <div class="history-list" id="historyList">
-        <div class="history-empty">No conversions yet. Drop a .py file to get started.</div>
+
+      <!-- Progress -->
+      <div class="progress-section">
+        <div class="progress-header">
+          <span class="progress-title" id="progressTitle">PIPELINE</span>
+          <span class="progress-pct" id="progressPct">—</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <div class="progress-status" id="progressStatus">Idle — drop a .py file to begin</div>
       </div>
-    </div>
 
-  </main>
-</div>
+      <!-- Result Banner -->
+      <div class="result-banner" id="resultBanner">
+        <div class="result-icon" id="resultIcon"></div>
+        <div class="result-text">
+          <strong id="resultTitle"></strong>
+          <span id="resultSub"></span>
+        </div>
+        <div class="result-actions" id="resultActions"></div>
+      </div>
 
-<!-- Advanced Options Modal -->
+      <!-- History -->
+      <div class="history-section">
+        <div class="history-header">
+          <span>CONVERSION HISTORY</span>
+          <span id="historyCount" style="color:#444">0 conversions</span>
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="history-empty">No conversions yet.</div>
+        </div>
+      </div>
+
+    </div><!-- /left-panel -->
+
+    <!-- ── RIGHT PANEL: TERMINAL ── -->
+    <div class="right-panel">
+      <div class="terminal-wrapper">
+
+        <!-- Titlebar -->
+        <div class="terminal-bar">
+          <div class="terminal-dots">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+          </div>
+          <div class="terminal-title">K3NNA VERBOSE OUTPUT — LIVE STREAM</div>
+          <div class="terminal-controls">
+            <span class="term-line-count" id="lineCount">0 lines</span>
+            <button class="term-btn" id="wrapBtn" title="Toggle line wrap">WRAP</button>
+            <button class="term-btn active" id="scrollBtn" title="Toggle auto-scroll">AUTO↓</button>
+            <button class="term-btn" id="clearBtn" title="Clear terminal">CLEAR</button>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="terminal-body" id="terminalBody">
+          <div class="terminal-idle" id="terminalIdle">
+            <div class="idle-banner">
+              ╔══════════════════════════════════════════╗<br>
+              ║  K3NNA — VERBOSE CONVERSION TERMINAL     ║<br>
+              ╚══════════════════════════════════════════╝
+            </div>
+            <span style="color:#333">  Waiting for a conversion job...<br><br>
+            Drop a .py file on the left and hit CONVERT.<br>
+            Every step of the PyInstaller pipeline will stream here in real time:<br><br>
+            &nbsp;&nbsp;<span style="color:#e60000">[STEP]</span> Pipeline stage markers<br>
+            &nbsp;&nbsp;<span style="color:#60b0ff">[INFO]</span> Environment &amp; file metadata<br>
+            &nbsp;&nbsp;<span style="color:#a57fff">[PYIS]</span> Raw PyInstaller DEBUG output<br>
+            &nbsp;&nbsp;<span style="color:#22c55e">[ OK ]</span> Success confirmations<br>
+            &nbsp;&nbsp;<span style="color:#f59e0b">[WARN]</span> Warnings<br>
+            &nbsp;&nbsp;<span style="color:#ff4444">[ERR ]</span> Errors<br>
+            </span>
+            <br><span style="color:#1e1e1e">▮</span><span class="cursor"></span>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /right-panel -->
+
+  </div><!-- /main-layout -->
+</div><!-- /app -->
+
+<!-- Advanced Modal -->
 <div class="modal-overlay" id="advancedModal">
   <div class="modal">
     <div class="modal-header">
@@ -459,39 +527,31 @@
     <div class="modal-body">
       <div class="opt-group">
         <div class="opt-group-title">COMPILATION OPTIONS</div>
-        <div class="opt-row">
-          <label class="toggle-label">
-            <input type="checkbox" id="adv_onefile" checked>
-            <span class="toggle-switch"></span>
-            <label for="adv_onefile" style="cursor:pointer">--onefile (single executable)</label>
-          </label>
-        </div>
-        <div class="opt-row">
-          <label class="toggle-label">
-            <input type="checkbox" id="adv_windowed" checked>
-            <span class="toggle-switch"></span>
-            <label for="adv_windowed" style="cursor:pointer">--windowed (no console)</label>
-          </label>
-        </div>
-        <div class="opt-row">
-          <label class="toggle-label">
-            <input type="checkbox" id="adv_strip">
-            <span class="toggle-switch"></span>
-            <label for="adv_strip" style="cursor:pointer">--strip (remove debug symbols)</label>
-          </label>
-        </div>
-        <div class="opt-row">
-          <label class="toggle-label">
-            <input type="checkbox" id="adv_optimize">
-            <span class="toggle-switch"></span>
-            <label for="adv_optimize" style="cursor:pointer">--optimize (Python optimization)</label>
-          </label>
-        </div>
+        <label class="toggle-label">
+          <input type="checkbox" id="adv_onefile" checked>
+          <span class="toggle-switch"></span>
+          --onefile (single executable)
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="adv_windowed" checked>
+          <span class="toggle-switch"></span>
+          --windowed (no console)
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="adv_strip">
+          <span class="toggle-switch"></span>
+          --strip (remove debug symbols)
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="adv_optimize">
+          <span class="toggle-switch"></span>
+          --optimize=2 (Python optimization)
+        </label>
       </div>
       <div class="opt-group">
         <div class="opt-group-title">CUSTOM ARGUMENTS</div>
         <textarea class="custom-args" id="adv_custom" placeholder="e.g. --hidden-import=module --additional-hooks-dir=/path"></textarea>
-        <div class="opt-hint">Space-separated PyInstaller flags. Applied after the options above.</div>
+        <div class="opt-hint">Space-separated PyInstaller flags appended to the command.</div>
       </div>
     </div>
     <div class="modal-footer">
@@ -501,150 +561,242 @@
 </div>
 
 <script>
-  // ── State ──
-  let selectedFiles = [];
-  let history = [];
-  let activeJobs = {};
-  let pollIntervals = {};
+  // ── State ──────────────────────────────────────────────────────────────────
+  let selectedFiles  = [];
+  let history        = [];
+  let activeJobId    = null;
+  let logOffset      = 0;
+  let pollInterval   = null;
+  let autoScroll     = true;
+  let lineWrap       = true;
+  let totalLogLines  = 0;
 
-  // ── DOM refs ──
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
+  // ── DOM ────────────────────────────────────────────────────────────────────
+  const dropZone      = document.getElementById('dropZone');
+  const fileInput     = document.getElementById('fileInput');
   const selectedFilesEl = document.getElementById('selectedFiles');
-  const convertBtn = document.getElementById('convertBtn');
-  const convertBtnText = document.getElementById('convertBtnText');
-  const browseBtn = document.getElementById('browseBtn');
-  const progressSection = document.getElementById('progressSection');
-  const progressBar = document.getElementById('progressBar');
-  const progressPct = document.getElementById('progressPct');
-  const progressStatus = document.getElementById('progressStatus');
-  const logBox = document.getElementById('logBox');
-  const resultBanner = document.getElementById('resultBanner');
-  const resultIcon = document.getElementById('resultIcon');
-  const resultTitle = document.getElementById('resultTitle');
-  const resultSub = document.getElementById('resultSub');
+  const convertBtn    = document.getElementById('convertBtn');
+  const convertBtnText= document.getElementById('convertBtnText');
+  const browseBtn     = document.getElementById('browseBtn');
+  const progressBar   = document.getElementById('progressBar');
+  const progressPct   = document.getElementById('progressPct');
+  const progressStatus= document.getElementById('progressStatus');
+  const resultBanner  = document.getElementById('resultBanner');
+  const resultIcon    = document.getElementById('resultIcon');
+  const resultTitle   = document.getElementById('resultTitle');
+  const resultSub     = document.getElementById('resultSub');
   const resultActions = document.getElementById('resultActions');
-  const historyList = document.getElementById('historyList');
-  const historyCount = document.getElementById('historyCount');
-  const statusDot = document.getElementById('statusDot');
-  const statusLabel = document.getElementById('statusLabel');
-  const advancedBtn = document.getElementById('advancedBtn');
-  const advancedModal = document.getElementById('advancedModal');
-  const modalClose = document.getElementById('modalClose');
-  const modalDone = document.getElementById('modalDone');
+  const historyList   = document.getElementById('historyList');
+  const historyCount  = document.getElementById('historyCount');
+  const statusDot     = document.getElementById('statusDot');
+  const statusLabel   = document.getElementById('statusLabel');
+  const terminalBody  = document.getElementById('terminalBody');
+  const terminalIdle  = document.getElementById('terminalIdle');
+  const lineCountEl   = document.getElementById('lineCount');
+  const scrollBtn     = document.getElementById('scrollBtn');
+  const wrapBtn       = document.getElementById('wrapBtn');
+  const clearBtn      = document.getElementById('clearBtn');
 
-  // ── Drag & Drop ──
-  dropZone.addEventListener('dragover', e => {
-    e.preventDefault();
-    dropZone.classList.add('hovering');
-  });
+  // ── Drag & Drop ────────────────────────────────────────────────────────────
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('hovering'); });
   dropZone.addEventListener('dragleave', () => dropZone.classList.remove('hovering'));
   dropZone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropZone.classList.remove('hovering');
-    const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.py'));
-    addFiles(files);
+    e.preventDefault(); dropZone.classList.remove('hovering');
+    addFiles(Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.py')));
   });
-
   fileInput.addEventListener('change', () => {
-    const files = Array.from(fileInput.files).filter(f => f.name.endsWith('.py'));
-    addFiles(files);
+    addFiles(Array.from(fileInput.files).filter(f => f.name.endsWith('.py')));
     fileInput.value = '';
   });
-
   browseBtn.addEventListener('click', () => fileInput.click());
 
   function addFiles(files) {
-    for (const f of files) {
-      if (!selectedFiles.find(sf => sf.name === f.name)) {
-        selectedFiles.push(f);
-      }
-    }
+    for (const f of files)
+      if (!selectedFiles.find(s => s.name === f.name)) selectedFiles.push(f);
     renderSelectedFiles();
     updateConvertBtn();
   }
-
   function removeFile(name) {
     selectedFiles = selectedFiles.filter(f => f.name !== name);
-    renderSelectedFiles();
-    updateConvertBtn();
+    renderSelectedFiles(); updateConvertBtn();
   }
-
   function renderSelectedFiles() {
-    if (selectedFiles.length === 0) {
-      selectedFilesEl.style.display = 'none';
-      selectedFilesEl.innerHTML = '';
-      return;
-    }
+    if (!selectedFiles.length) { selectedFilesEl.style.display = 'none'; selectedFilesEl.innerHTML = ''; return; }
     selectedFilesEl.style.display = 'block';
     selectedFilesEl.innerHTML = selectedFiles.map(f => `
       <div class="selected-file-row">
         ✅ ${f.name}
         <button class="remove-file" onclick="removeFile('${f.name}')">✕</button>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
+  function updateConvertBtn() { convertBtn.disabled = selectedFiles.length === 0; }
 
-  function updateConvertBtn() {
-    convertBtn.disabled = selectedFiles.length === 0;
-  }
-
-  // ── Status indicator ──
+  // ── Status indicator ───────────────────────────────────────────────────────
   function setProcessing(active) {
     statusDot.classList.toggle('active', active);
     statusLabel.classList.toggle('active', active);
     statusLabel.textContent = active ? 'PROCESSING' : 'READY';
   }
 
-  // ── Advanced modal ──
-  advancedBtn.addEventListener('click', () => advancedModal.classList.add('open'));
-  modalClose.addEventListener('click', () => advancedModal.classList.remove('open'));
-  modalDone.addEventListener('click', () => advancedModal.classList.remove('open'));
-  advancedModal.addEventListener('click', e => {
-    if (e.target === advancedModal) advancedModal.classList.remove('open');
+  // ── Advanced modal ─────────────────────────────────────────────────────────
+  document.getElementById('advancedBtn').addEventListener('click', () => document.getElementById('advancedModal').classList.add('open'));
+  document.getElementById('modalClose').addEventListener('click', () => document.getElementById('advancedModal').classList.remove('open'));
+  document.getElementById('modalDone').addEventListener('click',  () => document.getElementById('advancedModal').classList.remove('open'));
+  document.getElementById('advancedModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('advancedModal')) document.getElementById('advancedModal').classList.remove('open');
   });
 
   function getOptions() {
     return {
-      oneFile: document.getElementById('adv_onefile').checked,
-      windowed: document.getElementById('adv_windowed').checked,
+      oneFile:       document.getElementById('adv_onefile').checked,
+      windowed:      document.getElementById('adv_windowed').checked,
       stripBinaries: document.getElementById('adv_strip').checked,
-      optimize: document.getElementById('adv_optimize').checked,
+      optimize:      document.getElementById('adv_optimize').checked,
       customOptions: document.getElementById('adv_custom').value.trim(),
-      createScript: document.getElementById('optScript').checked,
+      createScript:  document.getElementById('optScript').checked,
     };
   }
 
-  // ── Conversion ──
+  // ── Terminal controls ──────────────────────────────────────────────────────
+  scrollBtn.addEventListener('click', () => {
+    autoScroll = !autoScroll;
+    scrollBtn.classList.toggle('active', autoScroll);
+    if (autoScroll) scrollToBottom();
+  });
+
+  wrapBtn.addEventListener('click', () => {
+    lineWrap = !lineWrap;
+    wrapBtn.classList.toggle('active', lineWrap);
+    terminalBody.style.whiteSpace = lineWrap ? '' : 'nowrap';
+    terminalBody.style.overflowX  = lineWrap ? 'hidden' : 'auto';
+  });
+
+  clearBtn.addEventListener('click', () => {
+    // Only clear visually — reset offset so future poll picks up from here
+    const logLines = terminalBody.querySelectorAll('.log-line');
+    logLines.forEach(l => l.remove());
+    totalLogLines = 0;
+    lineCountEl.textContent = '0 lines';
+    if (!activeJobId) showIdle();
+  });
+
+  terminalBody.addEventListener('scroll', () => {
+    const nearBottom = terminalBody.scrollHeight - terminalBody.scrollTop - terminalBody.clientHeight < 60;
+    if (!nearBottom && autoScroll) {
+      // User scrolled up — don't force-disable, just let it be
+    }
+  });
+
+  function scrollToBottom() {
+    terminalBody.scrollTop = terminalBody.scrollHeight;
+  }
+
+  function showIdle() {
+    if (!terminalIdle.parentNode) terminalBody.appendChild(terminalIdle);
+    terminalIdle.style.display = '';
+  }
+
+  function hideIdle() {
+    terminalIdle.style.display = 'none';
+    if (terminalIdle.parentNode) terminalIdle.parentNode.removeChild(terminalIdle);
+  }
+
+  // ── Parse & render a log line ──────────────────────────────────────────────
+  function parseLine(raw) {
+    // Format: [HH:MM:SS.mmm] [BADGE] message
+    const m = raw.match(/^\[(\d{2}:\d{2}:\d{2}\.\d{3})\] \[(.{1,4})\] ([\s\S]*)$/);
+    if (m) return { ts: m[1], badge: m[2].trim(), msg: m[3] };
+    return { ts: '', badge: 'SYS', msg: raw };
+  }
+
+  function badgeClass(badge) {
+    if (badge === 'STEP') return 'badge-STEP';
+    if (badge === 'INFO') return 'badge-INFO';
+    if (badge === 'WARN') return 'badge-WARN';
+    if (badge === 'OK'  || badge === ' OK ') return 'badge-OK';
+    if (badge === 'ERR' || badge === 'ERR ') return 'badge-ERR';
+    if (badge === 'PYIS') return 'badge-PYIS';
+    return 'badge-SYS';
+  }
+  function msgClass(badge) {
+    if (badge === 'STEP') return 'msg-STEP';
+    if (badge === 'INFO') return 'msg-INFO';
+    if (badge === 'WARN') return 'msg-WARN';
+    if (badge === 'OK'   || badge === ' OK ') return 'msg-OK';
+    if (badge === 'ERR'  || badge === 'ERR ') return 'msg-ERR';
+    if (badge === 'PYIS') return 'msg-PYIS';
+    return 'msg-SYS';
+  }
+
+  function appendLines(lines) {
+    hideIdle();
+    const frag = document.createDocumentFragment();
+    for (const raw of lines) {
+      const trimmed = raw.replace(/\n$/, '');
+      if (!trimmed) continue;
+      totalLogLines++;
+      const { ts, badge, msg } = parseLine(trimmed);
+      const bc = badgeClass(badge);
+      const mc = msgClass(badge);
+
+      const row = document.createElement('div');
+      row.className = 'log-line';
+      row.innerHTML =
+        `<span class="ln">${totalLogLines}</span>` +
+        `<span class="ts">${ts}</span>` +
+        `<span class="badge ${bc}">${badge}</span>` +
+        `<span class="msg ${mc}">${escHtml(msg)}</span>`;
+      frag.appendChild(row);
+    }
+    terminalBody.appendChild(frag);
+    lineCountEl.textContent = `${totalLogLines} lines`;
+    if (autoScroll) scrollToBottom();
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Conversion ─────────────────────────────────────────────────────────────
   convertBtn.addEventListener('click', startConversion);
 
   async function startConversion() {
-    if (selectedFiles.length === 0) return;
+    if (!selectedFiles.length) return;
 
     setProcessing(true);
     convertBtn.disabled = true;
     convertBtnText.innerHTML = '<span class="spinner"></span> CONVERTING...';
-    resultBanner.classList.remove('visible', 'success', 'error');
-    progressSection.classList.add('visible');
-    logBox.textContent = '';
-    setProgress(0, 'Queuing files...');
+    resultBanner.classList.remove('visible','success','error');
+
+    // Clear terminal for new run
+    const existing = terminalBody.querySelectorAll('.log-line');
+    existing.forEach(l => l.remove());
+    totalLogLines = 0;
+    lineCountEl.textContent = '0 lines';
+    hideIdle();
 
     const options = getOptions();
-    const files = [...selectedFiles];
+    const files   = [...selectedFiles];
     selectedFiles = [];
     renderSelectedFiles();
     updateConvertBtn();
 
     let successCount = 0, failCount = 0;
-    const total = files.length;
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      setProgress(Math.round((i / total) * 80), `[${i+1}/${total}] Converting: ${file.name}`);
+      setProgress(2, `[${i+1}/${files.length}] Uploading: ${file.name}`);
 
       try {
         const jobId = await submitFile(file, options);
-        const result = await pollJob(jobId, i, total, file.name);
+        activeJobId = jobId;
+        logOffset   = 0;
+
+        // Mark history item as active
+        renderHistory();
+
+        const result = await pollJobWithLog(jobId, i, files.length, file.name);
+
         if (result.status === 'done') {
           successCount++;
           addToHistory(file.name, true, jobId);
@@ -658,118 +810,124 @@
       }
     }
 
+    activeJobId = null;
     setProcessing(false);
-    setProgress(100, 'Finished');
+    setProgress(100, 'Pipeline complete');
     convertBtnText.innerHTML = '🚀 CONVERT';
-
-    showResult(successCount, failCount, total);
+    convertBtn.disabled = false;
+    showResult(successCount, failCount, files.length);
   }
 
   async function submitFile(file, options) {
     const fd = new FormData();
     fd.append('file', file);
     fd.append('options', JSON.stringify(options));
-    const res = await fetch('/api/convert', { method: 'POST', body: fd });
+    const res  = await fetch('/api/convert', { method: 'POST', body: fd });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Upload failed');
     return data.jobId;
   }
 
-  function pollJob(jobId, fileIdx, total, filename) {
-    return new Promise((resolve) => {
-      const interval = setInterval(async () => {
+  function pollJobWithLog(jobId, fileIdx, total, filename) {
+    return new Promise(resolve => {
+      const iv = setInterval(async () => {
         try {
-          const res = await fetch(`/api/status/${jobId}`);
-          const data = await res.json();
+          // Fetch new log lines
+          const logRes  = await fetch(`/api/log/${jobId}?offset=${logOffset}`);
+          const logData = await logRes.json();
+          if (logData.lines && logData.lines.length) {
+            appendLines(logData.lines);
+            logOffset = logData.total;
+          }
 
-          const baseProgress = Math.round((fileIdx / total) * 80);
-          const fileProgress = Math.round((data.progress / 100) * (80 / total));
-          setProgress(baseProgress + fileProgress, `[${fileIdx+1}/${total}] ${filename}: ${data.progress}%`);
+          // Fetch status
+          const statRes  = await fetch(`/api/status/${jobId}`);
+          const statData = await statRes.json();
 
-          if (data.log) logBox.textContent = data.log;
-          logBox.scrollTop = logBox.scrollHeight;
+          const base = Math.round((fileIdx / total) * 10);
+          const pct  = base + Math.round((statData.progress / 100) * (90 / total));
+          setProgress(pct, statData.status_msg || `[${fileIdx+1}/${total}] ${filename}: ${statData.progress}%`);
 
-          if (data.status === 'done' || data.status === 'failed') {
-            clearInterval(interval);
-            resolve(data);
+          if (statData.status === 'done' || statData.status === 'failed') {
+            clearInterval(iv);
+            // One final log fetch
+            const fin = await fetch(`/api/log/${jobId}?offset=${logOffset}`);
+            const finData = await fin.json();
+            if (finData.lines && finData.lines.length) {
+              appendLines(finData.lines);
+            }
+            resolve(statData);
           }
         } catch {
-          clearInterval(interval);
+          clearInterval(iv);
           resolve({ status: 'failed', error: 'Connection error' });
         }
-      }, 800);
+      }, 250);
     });
   }
 
   function setProgress(pct, msg) {
-    progressBar.style.width = pct + '%';
-    progressPct.textContent = pct + '%';
+    progressBar.style.width = Math.min(pct, 100) + '%';
+    progressPct.textContent  = Math.min(pct, 100) + '%';
     if (msg) progressStatus.textContent = msg;
   }
 
   function showResult(successCount, failCount, total) {
     resultBanner.classList.add('visible');
+    resultActions.innerHTML = '';
     if (failCount === 0) {
       resultBanner.classList.add('success');
       resultIcon.textContent = '✅';
-      resultTitle.textContent = `All ${successCount} file(s) converted successfully!`;
-      resultSub.textContent = 'Download your executable(s) from the history below.';
+      resultTitle.textContent = `All ${successCount} file(s) converted!`;
+      resultSub.textContent = 'Download from the history section below.';
     } else if (successCount === 0) {
       resultBanner.classList.add('error');
       resultIcon.textContent = '❌';
       resultTitle.textContent = `Failed to convert ${failCount} file(s)`;
-      resultSub.textContent = 'Check the log output above for details.';
+      resultSub.textContent = 'See the terminal log for details.';
     } else {
       resultBanner.classList.add('success');
       resultIcon.textContent = '⚠️';
-      resultTitle.textContent = `Converted ${successCount}/${total} — ${failCount} failed`;
-      resultSub.textContent = 'Successful downloads available in history below.';
+      resultTitle.textContent = `${successCount}/${total} converted — ${failCount} failed`;
+      resultSub.textContent = 'See log for details. Successful ones downloadable below.';
     }
-    resultActions.innerHTML = '';
   }
 
-  // ── History ──
+  // ── History ────────────────────────────────────────────────────────────────
   function addToHistory(filename, success, jobId, error) {
-    const item = { filename, success, jobId, error, time: new Date() };
-    history.unshift(item);
+    history.unshift({ filename, success, jobId, error, time: new Date() });
     renderHistory();
   }
 
   function renderHistory() {
     historyCount.textContent = `${history.length} conversion${history.length !== 1 ? 's' : ''}`;
-    if (history.length === 0) {
-      historyList.innerHTML = '<div class="history-empty">No conversions yet. Drop a .py file to get started.</div>';
+    if (!history.length) {
+      historyList.innerHTML = '<div class="history-empty">No conversions yet.</div>';
       return;
     }
-    historyList.innerHTML = history.map((item, idx) => `
-      <div class="history-item">
+    historyList.innerHTML = history.map(item => `
+      <div class="history-item${item.jobId === activeJobId ? ' active-job' : ''}">
         <span class="history-status">${item.success ? '✅' : '❌'}</span>
         <div class="history-info">
           <div class="history-name">${item.filename}</div>
-          <div class="history-time">${formatTime(item.time)}${item.error ? ' — ' + item.error.slice(0,60) : ''}</div>
+          <div class="history-time">${formatTime(item.time)}${item.error ? ' — ' + item.error.slice(0,50) : ''}</div>
         </div>
         ${item.success && item.jobId ? `
           <button class="history-dl" onclick="downloadExe('${item.jobId}')">⬇ EXE</button>
           <button class="history-dl" onclick="downloadScript('${item.jobId}')">📄 .sh</button>
         ` : ''}
-      </div>
-    `).join('');
+      </div>`).join('');
   }
 
   function formatTime(d) {
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   }
+  function downloadExe(jobId)    { window.location = `/api/download/${jobId}`; }
+  function downloadScript(jobId) { window.location = `/api/download-script/${jobId}`; }
 
-  function downloadExe(jobId) {
-    window.location = `/api/download/${jobId}`;
-  }
-
-  function downloadScript(jobId) {
-    window.location = `/api/download-script/${jobId}`;
-  }
-
-  // Initial render
+  // ── Init ───────────────────────────────────────────────────────────────────
   renderHistory();
+  showIdle();
 </script>
 </body>
 </html>
