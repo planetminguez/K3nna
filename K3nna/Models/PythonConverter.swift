@@ -4,6 +4,11 @@ class PythonConverter: ObservableObject {
     @Published var isConverting = false
     @Published var statusMessage = ""
     @Published var conversionProgress: Double = 0
+    @Published var oneFile = true
+    @Published var windowed = true
+    @Published var stripBinaries = false
+    @Published var optimize = false
+    @Published var customPyinstallerOptions = ""
     
     enum ConversionError: LocalizedError {
         case pythonNotFound
@@ -35,6 +40,8 @@ class PythonConverter: ObservableObject {
         pythonFile: URL,
         saveInOwnDir: Bool = true,
         createScript: Bool = true,
+        iconPath: String? = nil,
+        customOptions: String = "",
         completion: @escaping (Result<URL, ConversionError>) -> Void
     ) {
         DispatchQueue.global(qos: .userInitiated).async {
@@ -51,11 +58,16 @@ class PythonConverter: ObservableObject {
                 try self.verifyPyInstaller()
                 
                 // Run PyInstaller
-                let outputDir = try self.runPyInstaller(pythonFile: pythonFile, saveInOwnDir: saveInOwnDir)
+                let outputDir = try self.runPyInstaller(
+                    pythonFile: pythonFile,
+                    saveInOwnDir: saveInOwnDir,
+                    iconPath: iconPath,
+                    customOptions: customOptions
+                )
                 
                 // Create automation script if requested
                 if createScript {
-                    try self.createAutomationScript(pythonFile: pythonFile, outputDir: outputDir)
+                    try self.createAutomationScript(pythonFile: pythonFile, outputDir: outputDir, iconPath: iconPath)
                 }
                 
                 DispatchQueue.main.async {
@@ -109,13 +121,17 @@ class PythonConverter: ObservableObject {
         }
     }
     
-    private func runPyInstaller(pythonFile: URL, saveInOwnDir: Bool) throws -> URL {
+    private func runPyInstaller(
+        pythonFile: URL,
+        saveInOwnDir: Bool,
+        iconPath: String? = nil,
+        customOptions: String = ""
+    ) throws -> URL {
         let fileName = pythonFile.deletingPathExtension().lastPathComponent
         let sourceDir = pythonFile.deletingLastPathComponent()
         
         let outputDir: URL
         if saveInOwnDir {
-            // Create output directory in format: script_name_exe
             outputDir = sourceDir.appendingPathComponent("\(fileName)_exe")
             try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
         } else {
@@ -125,7 +141,6 @@ class PythonConverter: ObservableObject {
         let buildDir = sourceDir.appendingPathComponent("build")
         let specFile = sourceDir.appendingPathComponent("\(fileName).spec")
         
-        // Update status
         DispatchQueue.main.async {
             self.statusMessage = "[1/3] Preparing environment..."
             self.conversionProgress = 0.1
@@ -134,18 +149,45 @@ class PythonConverter: ObservableObject {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/python3")
         
-        // PyInstaller arguments
-        process.arguments = [
-            "-m", "PyInstaller",
-            "--onefile",
-            "--windowed",
+        // Build PyInstaller arguments
+        var args = [
+            "-m", "PyInstaller"
+        ]
+        
+        if oneFile {
+            args.append("--onefile")
+        }
+        
+        if windowed {
+            args.append("--windowed")
+        }
+        
+        if stripBinaries {
+            args.append("--strip")
+        }
+        
+        if optimize {
+            args.append("--optimize=2")
+        }
+        
+        // Add icon if provided
+        if let iconPath = iconPath, !iconPath.isEmpty {
+            args.append("--icon=\(iconPath)")
+        }
+        
+        // Add custom options
+        let customArgs = customOptions.split(separator: " ").map(String.init)
+        args.append(contentsOf: customArgs)
+        
+        args.append(contentsOf: [
             "--clean",
             "--distpath", outputDir.path,
             "--buildpath", buildDir.path,
             "--specpath", sourceDir.path,
             pythonFile.path
-        ]
+        ])
         
+        process.arguments = args
         process.currentDirectoryURL = sourceDir
         
         let pipe = Pipe()
@@ -184,15 +226,15 @@ class PythonConverter: ObservableObject {
         return outputDir
     }
     
-    private func createAutomationScript(pythonFile: URL, outputDir: URL) throws {
+    private func createAutomationScript(pythonFile: URL, outputDir: URL, iconPath: String? = nil) throws {
         let fileName = pythonFile.deletingPathExtension().lastPathComponent
         let sourceDir = pythonFile.deletingLastPathComponent()
-        let projectRoot = sourceDir // This is the root for the script
         
         let scriptName = "build_\(fileName).sh"
-        let scriptPath = projectRoot.appendingPathComponent(scriptName)
+        let scriptPath = sourceDir.appendingPathComponent(scriptName)
         
-        // Create shell script content
+        let iconArg = iconPath.map { "--icon=\($0)" } ?? ""
+        
         let scriptContent = """#!/bin/bash
 # Automated build script for \(fileName)
 # Generated by K3nna Python to Executable Converter
@@ -237,6 +279,7 @@ python3 -m PyInstaller \\
     --onefile \\
     --windowed \\
     --clean \\
+    \(iconArg.isEmpty ? "" : iconArg + " \\\\\n    ")\\
     --distpath "$OUTPUT_DIR" \\
     --buildpath build \\
     --specpath . \\
@@ -258,10 +301,7 @@ echo "  Ready to distribute!"
 echo "========================================"
 """
         
-        // Write script to file
         try scriptContent.write(to: scriptPath, atomically: true, encoding: .utf8)
-        
-        // Make script executable
         try FileManager.default.setAttributes(
             [.posixPermissions: 0o755],
             ofItemAtPath: scriptPath.path

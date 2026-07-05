@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var converter = PythonConverter()
+    @StateObject private var settingsManager = SettingsManager()
     @State private var draggedFiles: [URL] = []
     @State private var showResult = false
     @State private var resultURL: URL?
@@ -15,6 +16,9 @@ struct ContentView: View {
     @State private var batchProgress: Double = 0
     @State private var batchTotal = 0
     @State private var batchCurrent = 0
+    @State private var showAdvancedOptions = false
+    @State private var showIconPicker = false
+    @State private var selectedIconPath: String = ""
     
     var body: some View {
         ZStack {
@@ -103,6 +107,29 @@ struct ContentView: View {
                         .padding(.vertical, 6)
                         .background(Color(red: 0.15, green: 0.15, blue: 0.15))
                         .cornerRadius(6)
+                        
+                        // Settings button
+                        Menu {
+                            Button(action: { showAdvancedOptions = true }) {
+                                Label("Advanced Options", systemImage: "slider.horizontal.3")
+                            }
+                            Button(action: { showIconPicker = true }) {
+                                Label("Select App Icon", systemImage: "photo")
+                            }
+                            Button(action: { settingsManager.exportSettings() }) {
+                                Label("Export Settings", systemImage: "square.and.arrow.up")
+                            }
+                            Button(action: { settingsManager.importSettings() }) {
+                                Label("Import Settings", systemImage: "square.and.arrow.down")
+                            }
+                        } label: {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color(red: 0.9, green: 0.0, blue: 0.0))
+                                .padding(8)
+                                .background(Color(red: 0.15, green: 0.15, blue: 0.15))
+                                .cornerRadius(6)
+                        }
                     }
                     .padding(16)
                 }
@@ -457,6 +484,20 @@ struct ContentView: View {
                 }
             }
         }
+        .sheet(isPresented: $showAdvancedOptions) {
+            AdvancedOptionsView(
+                isPresented: $showAdvancedOptions,
+                converter: converter,
+                settingsManager: settingsManager
+            )
+        }
+        .sheet(isPresented: $showIconPicker) {
+            IconPickerView(
+                isPresented: $showIconPicker,
+                selectedIconPath: $selectedIconPath,
+                converter: converter
+            )
+        }
         .alert("Conversion Complete", isPresented: $showCompletionAlert) {
             Button("Open in Finder") {
                 if let url = resultURL {
@@ -524,7 +565,9 @@ struct ContentView: View {
             converter.convert(
                 pythonFile: file,
                 saveInOwnDir: saveExeInOwnDir,
-                createScript: createAutomationScript
+                createScript: createAutomationScript,
+                iconPath: selectedIconPath.isEmpty ? nil : selectedIconPath,
+                customOptions: converter.customPyinstallerOptions
             ) { result in
                 switch result {
                 case .success(let outputURL):
